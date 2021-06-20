@@ -1,0 +1,13 @@
+rootProject.name = 'osh-ogct17'
+gradle.ext.oshCoreDir = "../../osh-core"
+gradle.ext.oshAddonsDir = "../../osh-addons"
+
+/*if (!new File(gradle.oshCoreDir).exists())
+    throw new GradleException('Repository osh-core is missing. Please clone it from https://github.com/opensensorhub/osh-core')
+
+if (!new File(gradle.oshAddonsDir).exists())
+    throw new GradleException('Repository osh-addons is missing. Please clone it from https://github.com/opensensorhub/osh-addons')*/
+
+includeBuild gradle.oshCoreDir
+includeBuild gradle.oshAddonsDir
+include 'sensorhub-process-t17'

@@ -1,0 +1,235 @@
+<sml:AggregateProcess xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sml="http://www.opengis.net/sensorml/2.0" xmlns:swe="http://www.opengis.net/swe/2.0" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:gmd="http://www.isotc211.org/2005/gmd" gml:id="CHAIN1">
+  <gml:identifier codeSpace="uid">urn:osh:process:vmti</gml:identifier>
+  <sml:outputs>
+    <sml:OutputList>      
+      <sml:output name="targetLocation">
+      <swe:DataRecord>
+        <swe:field name="time">
+            <swe:Time definition="http://www.opengis.net/def/property/OGC/0/SamplingTime" referenceFrame="http://www.opengis.net/def/trs/BIPM/0/UTC">
+              <swe:label>Precision Time Stamp</swe:label>
+              <swe:description>Time stamp of frame from which the tracking information was computed</swe:description>
+              <swe:uom xlink:href="http://www.opengis.net/def/uom/ISO-8601/0/Gregorian"/>
+            </swe:Time>
+          </swe:field>
+          <swe:field name="location">
+	          <swe:Vector
+		          definition="http://sensorml.com/ont/swe/property/TargetLocation"
+		          referenceFrame="http://www.opengis.net/def/crs/EPSG/0/4979">
+		          <swe:label>Target Location</swe:label>
+		          <swe:description>Location of tracked target on ground</swe:description>
+		          <swe:coordinate name="lat">
+		            <swe:Quantity axisID="Lat"
+		              definition="http://sensorml.com/ont/swe/property/GeodeticLatitude">
+		              <swe:label>Geodetic Latitude</swe:label>
+		              <swe:uom code="deg" />
+		            </swe:Quantity>
+		          </swe:coordinate>
+		          <swe:coordinate name="lon">
+		            <swe:Quantity axisID="Lon"
+		              definition="http://sensorml.com/ont/swe/property/Longitude">
+		              <swe:label>Longitude</swe:label>
+		              <swe:uom code="deg" />
+		            </swe:Quantity>
+		          </swe:coordinate>
+		          <swe:coordinate name="alt">
+		            <swe:Quantity axisID="h"
+		              definition="http://sensorml.com/ont/swe/property/HeightAboveEllipsoid">
+		              <swe:label>Ellipsoidal Height</swe:label>
+		              <swe:uom code="m" />
+		            </swe:Quantity>
+		          </swe:coordinate>
+		        </swe:Vector>
+          </swe:field>
+        </swe:DataRecord>        
+      </sml:output>
+    </sml:OutputList>
+  </sml:outputs>
+  <sml:components>
+    <sml:ComponentList>
+      <sml:component name="source0">
+        <sml:SimpleProcess gml:id="P1">
+          <gml:identifier codeSpace="uid">urn:socom:sensor:uas:uas001</gml:identifier>
+          <sml:typeOf xlink:href="urn:osh:process:datasource:stream"/>
+          <sml:configuration>
+            <sml:Settings>
+              <sml:setValue ref="parameters/producerURI">urn:socom:sensor:uas:uas001</sml:setValue>
+            </sml:Settings>
+          </sml:configuration>
+        </sml:SimpleProcess>
+      </sml:component>
+      <sml:component name="decoder">
+        <sml:SimpleProcess gml:id="P2">
+          <sml:typeOf xlink:href="urn:osh:process:video:FFMpegDecoder"/>
+          <sml:configuration>
+            <sml:Settings>
+              <sml:setValue ref="inputs/codedFrame/width">640</sml:setValue>
+              <sml:setValue ref="inputs/codedFrame/height">480</sml:setValue>
+              <sml:setValue ref="parameters/codec">H264</sml:setValue>
+              <sml:setValue ref="parameters/decimFactor">1</sml:setValue>
+            </sml:Settings>
+          </sml:configuration>
+        </sml:SimpleProcess>
+      </sml:component>
+      <sml:component name="bbox_gen">
+        <sml:SimpleProcess gml:id="P3">
+          <sml:typeOf xlink:href="urn:osh:process:t17:BboxGenerator"/>
+        </sml:SimpleProcess>
+      </sml:component>
+      <sml:component name="obj_track">
+        <sml:SimpleProcess gml:id="P4">
+          <sml:typeOf xlink:href="urn:osh:process:opencv:ObjectTracking"/>
+          <sml:configuration>
+            <sml:Settings>
+              <sml:setValue ref="parameters/algorithm">CSRT</sml:setValue>
+            </sml:Settings>
+          </sml:configuration>
+        </sml:SimpleProcess>
+      </sml:component>
+      <sml:component name="bbox_center">
+        <sml:SimpleProcess gml:id="P5">
+          <sml:typeOf xlink:href="urn:osh:process:opencv:BboxCenter"/>
+        </sml:SimpleProcess>
+      </sml:component>
+      <sml:component name="fov_to_cam_matrix">
+        <sml:SimpleProcess gml:id="P6">
+          <sml:typeOf xlink:href="urn:osh:process:geoloc:FovToCamMatrix"/>
+          <sml:configuration>
+            <sml:Settings>
+              <sml:setValue ref="parameters/fovType">HFOV</sml:setValue>
+              <sml:setValue ref="parameters/imageWidth">640</sml:setValue>
+              <sml:setValue ref="parameters/imageHeight">480</sml:setValue>
+            </sml:Settings>
+          </sml:configuration>
+        </sml:SimpleProcess>
+      </sml:component>
+      <sml:component name="geoloc_target">
+        <sml:SimpleProcess gml:id="P7">
+          <sml:typeOf xlink:href="urn:osh:process:geoloc:ImageToGround"/>
+          <sml:configuration>
+            <sml:Settings>
+              <sml:setValue ref="parameters/groundHeight">193</sml:setValue>
+            </sml:Settings>
+          </sml:configuration>
+        </sml:SimpleProcess>
+      </sml:component>
+      <sml:component name="display">
+        <sml:SimpleProcess gml:id="P20">
+          <sml:typeOf xlink:href="urn:osh:process:opencv:VideoDisplayCV"/>
+        </sml:SimpleProcess>
+      </sml:component>
+    </sml:ComponentList>
+  </sml:components>
+  <sml:connections>
+    <sml:ConnectionList>
+      <sml:connection>
+        <sml:Link>
+          <sml:source ref="components/source0/outputs/UasVideo/img"/>
+          <sml:destination ref="components/decoder/inputs/codedFrame/img"/>
+        </sml:Link>
+      </sml:connection>
+      <sml:connection>
+        <sml:Link>
+          <sml:source ref="components/source0/outputs/UasVideo/time"/>
+          <sml:destination ref="components/decoder/inputs/codedFrame/time"/>
+        </sml:Link>
+      </sml:connection>
+      <sml:connection>
+        <sml:Link>
+          <sml:source ref="components/decoder/outputs/rgbFrame"/>
+          <sml:destination ref="components/obj_track/inputs/rgbFrame"/>
+        </sml:Link>
+      </sml:connection>
+      <sml:connection>
+        <sml:Link>
+          <sml:source ref="components/decoder/outputs/rgbFrame/time"/>
+          <sml:destination ref="components/bbox_gen/inputs/time"/>
+        </sml:Link>
+      </sml:connection>
+      <sml:connection>
+        <sml:Link>
+          <sml:source ref="components/bbox_gen/outputs/objectRois"/>
+          <sml:destination ref="components/obj_track/parameters/objectRois"/>
+        </sml:Link>
+      </sml:connection>      
+      <sml:connection>
+        <sml:Link>
+          <sml:source ref="components/obj_track/outputs/trackedObjects/numObjs"/>
+          <sml:destination ref="components/bbox_center/inputs/rois/numRois"/>
+        </sml:Link>
+      </sml:connection>
+      <sml:connection>
+        <sml:Link>
+          <sml:source ref="components/obj_track/outputs/trackedObjects/bboxList"/>
+          <sml:destination ref="components/bbox_center/inputs/rois/bboxList"/>
+        </sml:Link>
+      </sml:connection>
+      <sml:connection>
+        <sml:Link>
+          <sml:source ref="components/bbox_center/outputs/bboxCenter"/>
+          <sml:destination ref="components/geoloc_target/inputs/imgCoords"/>
+        </sml:Link>
+      </sml:connection>
+      <sml:connection>
+        <sml:Link>
+          <sml:source ref="components/source0/outputs/GeoRefImageFrame/geoRefImageFrame/fovHorizontal"/>
+          <sml:destination ref="components/fov_to_cam_matrix/inputs/fov"/>
+        </sml:Link>
+      </sml:connection>
+      <sml:connection>
+        <sml:Link>
+          <sml:source ref="components/fov_to_cam_matrix/outputs/camMatrix"/>
+          <sml:destination ref="components/geoloc_target/parameters/camMatrix"/>
+        </sml:Link>
+      </sml:connection>
+      <sml:connection>
+        <sml:Link>
+          <sml:source ref="components/source0/outputs/AirframePosition/platformLocation"/>
+          <sml:destination ref="components/geoloc_target/parameters/platformLocation"/>
+        </sml:Link>
+      </sml:connection>
+      <sml:connection>
+        <sml:Link>
+          <sml:source ref="components/source0/outputs/AirframePosition/platformHPR"/>
+          <sml:destination ref="components/geoloc_target/parameters/platformAttitude"/>
+        </sml:Link>
+      </sml:connection>
+      <sml:connection>
+        <sml:Link>
+          <sml:source ref="components/source0/outputs/GimbalAttitude/attitude"/>
+          <sml:destination ref="components/geoloc_target/parameters/camOrientation"/>
+        </sml:Link>
+      </sml:connection>
+      <sml:connection>
+        <sml:Link>
+          <sml:source ref="components/obj_track/outputs/trackedObjects/time"/>
+          <sml:destination ref="outputs/targetLocation/time"/>
+        </sml:Link>
+      </sml:connection>
+      <sml:connection>
+        <sml:Link>
+          <sml:source ref="components/geoloc_target/outputs/groundLocation"/>
+          <sml:destination ref="outputs/targetLocation/location"/>
+        </sml:Link>
+      </sml:connection>
+      <!-- Video display -->
+      <sml:connection>
+        <sml:Link>
+          <sml:source ref="components/decoder/outputs/rgbFrame"/>
+          <sml:destination ref="components/display/inputs/rgbFrame"/>
+        </sml:Link>
+      </sml:connection>
+      <sml:connection>
+        <sml:Link>
+          <sml:source ref="components/obj_track/outputs/trackedObjects/numObjs"/>
+          <sml:destination ref="components/display/inputs/rois/numRois"/>
+        </sml:Link>
+      </sml:connection>
+      <sml:connection>
+        <sml:Link>
+          <sml:source ref="components/obj_track/outputs/trackedObjects/bboxList"/>
+          <sml:destination ref="components/display/inputs/rois/bboxList"/>
+        </sml:Link>
+      </sml:connection>
+    </sml:ConnectionList>
+  </sml:connections>
+</sml:AggregateProcess>

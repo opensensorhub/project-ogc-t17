@@ -1,0 +1,184 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="http://bbecquet.github.io/Leaflet.RotatedMarker/leaflet.rotatedMarker.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" type="text/css" />
+    <style>
+      td {padding: 10px; padding-right: 40px; vertical-align: top;}
+      pre {padding: 0; margin: 0}
+    </style>
+    <script type="text/javascript">
+        
+        function init(){
+            var map = L.map("map");
+            L.tileLayer("http://{s}.tile.osm.org/{z}/{x}/{y}.png").addTo(map);
+                        
+            // center map on HSV
+            map.setView([34.70, -86.66], 15);
+            
+            
+            //////////////////////////////////////
+            // request and display UAV location //
+            //////////////////////////////////////
+            
+            var marker;
+            var polyline;            
+            var reader1 = new FileReader();
+            var uavIcon = L.icon({
+              iconUrl: 'img/plane.png',
+              iconSize: [30, 30],
+              iconAnchor: [15, 15],
+            });
+            
+            reader1.onload = function() {
+                var rec = reader1.result;
+                //console.log(rec);
+                var pos = JSON.parse(rec);
+                document.getElementById("text_pos").innerHTML = JSON.stringify(pos, null, 2);
+                
+                var point = [
+                  pos.platformLocation.lat,
+                  pos.platformLocation.lon
+                ];
+                  
+                if (polyline == null) {
+                  marker = L.marker(point, {color: 'red', icon: uavIcon}).addTo(map);
+                  polyline = L.polyline([point], {color: 'blue', weight: 3}).addTo(map);
+                } else {
+                  marker.setLatLng(point);
+                  marker.setRotationAngle(pos.platformHPR.heading);
+                  polyline.addLatLng(point);
+                }
+            }
+            
+            // query SOS stream
+            var currentUrl = window.location;
+            var ws1 = new WebSocket("ws://localhost:8181/sensorhub/sos?service=SOS&version=2.0&request=GetResult&offering=urn:socom:sensor:uas:uas001&observedProperty=http://sensorml.com/ont/swe/property/AirframePosition&temporalFilter=phenomenonTime,now/2100-01-01Z&responseFormat=application/json");
+            
+            ws1.onmessage = function (event) {
+                reader1.readAsText(event.data);
+                //ws1.close();
+            }
+            ws1.onerror = function (event) {
+                ws1.close();
+            }
+            
+            
+            ////////////////////////////////////////////
+            // request and display georef image frame //
+            ////////////////////////////////////////////
+
+            var polygon;
+            var reader2 = new FileReader();
+            
+            reader2.onload = function() {
+                var rec = reader2.result;
+                //console.log(rec);                
+                var georef = JSON.parse(rec);
+                document.getElementById("text_georef").innerHTML = JSON.stringify(georef, null, 2);
+                //georef = georef.geoRefImageFrame;
+                
+                var points = [
+                    [georef.ulc.lat, georef.ulc.lon],
+                    [georef.urc.lat, georef.urc.lon],
+                    [georef.lrc.lat, georef.lrc.lon],
+                    [georef.llc.lat, georef.llc.lon]
+                ];
+                  
+                if (polygon == null) {                  
+                  polygon = L.polygon(points, {color: 'gray', fillOpacity: 0.5, weight: 1}).addTo(map);
+                } else {
+                  polygon.setLatLngs(points);
+                  polygon.redraw();
+                }
+            }
+            
+            // query SOS stream
+            var currentUrl = window.location;
+            var ws2 = new WebSocket("ws://localhost:8181/sensorhub/sos?service=SOS&version=2.0&request=GetResult&offering=urn:osh:process:georef&observedProperty=http://sensorml.com/ont/swe/property/GeoRefImageFrame&temporalFilter=phenomenonTime,now/2100-01-01Z&responseFormat=application/json");
+            //var ws2 = new WebSocket("ws://localhost:8181/sensorhub/sos?service=SOS&version=2.0&request=GetResult&offering=urn:socom:sensor:uas:uas001&observedProperty=http://sensorml.com/ont/swe/property/GeoRefImageFrame&temporalFilter=phenomenonTime,now/2100-01-01Z&responseFormat=application/json");
+            
+            ws2.onmessage = function (event) {
+                reader2.readAsText(event.data);
+                //ws2.close();
+            }
+            ws2.onerror = function (event) {
+                ws2.close();
+            }
+            
+            
+            /////////////////////////////////////////
+            // request and display target location //
+            /////////////////////////////////////////
+
+            var marker3;
+            var reader3 = new FileReader();
+            var targetIcon = L.icon({
+              iconUrl: 'img/draw_point_on.png',
+              iconSize: [20, 20],
+              iconAnchor: [10, 10],
+            });
+            
+            reader3.onload = function() {
+                var rec = reader3.result;
+                //console.log(rec);                
+                var targetLoc = JSON.parse(rec);
+                document.getElementById("text_target").innerHTML = JSON.stringify(targetLoc, null, 2);
+                
+                var point = [
+                  targetLoc.location.lat,
+                  targetLoc.location.lon
+                ];
+                  
+                if (marker3 == null) {
+                  marker3 = L.marker(point, {color: 'red', icon: targetIcon}).addTo(map);
+                } else {
+                  marker3.setLatLng(point);
+                }
+            }
+            
+            // query SOS stream
+            var currentUrl = window.location;
+            var ws3 = new WebSocket("ws://localhost:8181/sensorhub/sos?service=SOS&version=2.0&request=GetResult&offering=urn:osh:process:vmti&observedProperty=http://sensorml.com/ont/swe/property/TargetLocation&temporalFilter=phenomenonTime,now/2100-01-01Z&responseFormat=application/json");
+            
+            ws3.onmessage = function (event) {
+                reader3.readAsText(event.data);
+                //ws3.close();
+            }
+            ws3.onerror = function (event) {
+                ws3.close();
+            }
+        }
+
+    </script>
+  </head>
+  <body onload="init()" style="font-family: verdana">
+    <h1 id="title">MISB Georeferencing Processing Chain</h1>
+    <table width="100%">
+      <tr>
+        <td width="75%">
+          <div id="map" style="width:100%; height:768px"></div>
+        </td>
+        <td>
+          <div style="position:relative; float:left">
+            <b><pre>UAV Position</pre></b>
+            <p></p>
+            <pre id="text_pos">Waiting for first data packet...</pre>
+            <p>&nbsp;</p>
+            <b><pre>Geo-referenced Image Frame</pre></b>
+            <p></p>
+            <pre id="text_georef">Waiting for first data packet...</pre>
+            <p>&nbsp;</p>
+            <b><pre>Target Location</pre></b>
+            <p></p>
+            <pre id="text_target">Waiting for first data packet...</pre>
+          </div>
+        </td>
+      </tr>
+    </table>    
+  </body>
+</html>
+
+
+
+
