@@ -14,3 +14,6 @@
 **/*.json.bak*
 **/*.deleted
 **/hivemq-data
+**/hivemq-config
+deploy
+dockerfile
