@@ -1,7 +1,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-    <script src="http://bbecquet.github.io/Leaflet.RotatedMarker/leaflet.rotatedMarker.js"></script>
+    <script src="https://bbecquet.github.io/Leaflet.RotatedMarker/leaflet.rotatedMarker.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" type="text/css" />
     <style>
       td {padding: 10px; padding-right: 40px; vertical-align: top;}
@@ -15,8 +15,9 @@
                         
             // center map on HSV
             map.setView([34.70, -86.66], 15);
-            
-            
+            var url = window.location;
+            var wsRequest = (url.protocol == "https:" ? "wss" : "ws") + "://" + url.host + "/sensorhub/sos?service=SOS&version=2.0&request=GetResult&";
+              
             //////////////////////////////////////
             // request and display UAV location //
             //////////////////////////////////////
@@ -52,8 +53,7 @@
             }
             
             // query SOS stream
-            var currentUrl = window.location;
-            var ws1 = new WebSocket("ws://localhost:8181/sensorhub/sos?service=SOS&version=2.0&request=GetResult&offering=urn:socom:sensor:uas:uas001&observedProperty=http://sensorml.com/ont/swe/property/AirframePosition&temporalFilter=phenomenonTime,now/2100-01-01Z&responseFormat=application/json");
+            var ws1 = new WebSocket(wsRequest + "offering=urn:socom:sensor:uas:uas001&observedProperty=http://sensorml.com/ont/swe/property/AirframePosition&temporalFilter=phenomenonTime,now/2100-01-01Z&responseFormat=application/json");
             
             ws1.onmessage = function (event) {
                 reader1.readAsText(event.data);
@@ -95,8 +95,8 @@
             
             // query SOS stream
             var currentUrl = window.location;
-            var ws2 = new WebSocket("ws://localhost:8181/sensorhub/sos?service=SOS&version=2.0&request=GetResult&offering=urn:osh:process:georef&observedProperty=http://sensorml.com/ont/swe/property/GeoRefImageFrame&temporalFilter=phenomenonTime,now/2100-01-01Z&responseFormat=application/json");
-            //var ws2 = new WebSocket("ws://localhost:8181/sensorhub/sos?service=SOS&version=2.0&request=GetResult&offering=urn:socom:sensor:uas:uas001&observedProperty=http://sensorml.com/ont/swe/property/GeoRefImageFrame&temporalFilter=phenomenonTime,now/2100-01-01Z&responseFormat=application/json");
+            var ws2 = new WebSocket(wsRequest + "offering=urn:osh:process:georef&observedProperty=http://sensorml.com/ont/swe/property/GeoRefImageFrame&temporalFilter=phenomenonTime,now/2100-01-01Z&responseFormat=application/json");
+            //var ws2 = new WebSocket(wsRequest + "offering=urn:socom:sensor:uas:uas001&observedProperty=http://sensorml.com/ont/swe/property/GeoRefImageFrame&temporalFilter=phenomenonTime,now/2100-01-01Z&responseFormat=application/json");
             
             ws2.onmessage = function (event) {
                 reader2.readAsText(event.data);
@@ -139,7 +139,7 @@
             
             // query SOS stream
             var currentUrl = window.location;
-            var ws3 = new WebSocket("ws://localhost:8181/sensorhub/sos?service=SOS&version=2.0&request=GetResult&offering=urn:osh:process:vmti&observedProperty=http://sensorml.com/ont/swe/property/TargetLocation&temporalFilter=phenomenonTime,now/2100-01-01Z&responseFormat=application/json");
+            var ws3 = new WebSocket(wsRequest + "offering=urn:osh:process:vmti&observedProperty=http://sensorml.com/ont/swe/property/TargetLocation&temporalFilter=phenomenonTime,now/2100-01-01Z&responseFormat=application/json");
             
             ws3.onmessage = function (event) {
                 reader3.readAsText(event.data);

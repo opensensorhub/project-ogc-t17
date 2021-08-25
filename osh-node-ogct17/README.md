@@ -11,3 +11,24 @@ OSH demo distribution deployed for OGC Testbed 17, including the following modul
 - SensorThings Service with MQTT support
 - SensorWeb API Service
 
+
+#### Docker
+
+To build the image, run:
+
+`./gradlew docker`
+
+To launch in a container locally:
+
+`./gradlew dockerRun`
+
+OSH will be available on port 8080 for testing
+
+To push the image to GCR (Google Cloud Registry):
+
+`./gradlew dockerPushGcr`
+
+
+
+
+

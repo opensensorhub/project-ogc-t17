@@ -5,9 +5,8 @@
     "httpsPort": 0,
     "staticDocRootUrl": "web",
     "servletsRootUrl": "/sensorhub",
+    "proxyBaseUrl": "https://ogct17.georobotix.io:8443",
     "authMethod": "BASIC",
-    "keyStorePath": ".keystore/ssl_keys",
-    "trustStorePath": ".keystore/ssl_trust",
     "enableCORS": true,
     "id": "5cb05c9c-9e08-4fa1-8731-ffaa5846bdc1",
     "moduleClass": "org.sensorhub.impl.service.HttpServer",
@@ -30,44 +29,30 @@
       {
         "objClass": "org.sensorhub.impl.security.BasicSecurityRealmConfig$UserConfig",
         "id": "admin",
+        "name": "Administrator",
         "password": "test",
-        "roles": [
-          "admin"
-        ]
+        "roles": ["admin"]
       },
       {
         "objClass": "org.sensorhub.impl.security.BasicSecurityRealmConfig$UserConfig",
         "id": "anonymous",
         "name": "Anonymous User",
         "password": "",
-        "roles": [
-          "anon"
-        ]
+        "roles": ["anon"]
       },
       {
         "objClass": "org.sensorhub.impl.security.BasicSecurityRealmConfig$UserConfig",
-        "id": "sensor01",
-        "password": "test1",
-        "roles": [
-          "sensors"
-        ]
-      },
-      {
-        "objClass": "org.sensorhub.impl.security.BasicSecurityRealmConfig$UserConfig",
-        "id": "sensor02",
-        "password": "test2",
-        "roles": [
-          "sensors"
-        ]
+        "id": "sensor",
+        "name": "Smart Sensors",
+        "password": "pwd",
+        "roles": ["sost"]
       }
     ],
     "roles": [
       {
         "objClass": "org.sensorhub.impl.security.BasicSecurityRealmConfig$RoleConfig",
         "id": "admin",
-        "allow": [
-          "*"
-        ],
+        "allow": ["*"],
         "deny": []
       },
       {
@@ -76,13 +61,14 @@
         "allow": [
           "sos[*]/get/*",
           "stapi[*]/get/*",
-          "swapi[*]/get/*"
+          "swapi[*]/get/*",
+          "swapi[*]/stream/*"
         ],
         "deny": []
       },
       {
         "objClass": "org.sensorhub.impl.security.BasicSecurityRealmConfig$RoleConfig",
-        "id": "sensors",
+        "id": "sost",
         "allow": [
           "sos[*]/get/*",
           "sos[*]/insert/*",
@@ -99,7 +85,7 @@
   {
     "objClass": "org.sensorhub.impl.sensor.fakegps.FakeGpsConfig",
     "googleApiUrl": "https://maps.googleapis.com/maps/api/directions/json",
-    "googleApiKey": "AIzaSyCSK00PdeC2rmT85yYiKiAl3CwTVt0YKVg",
+    "googleApiKey": "${GOOGLE_API_KEY}",
     "centerLatitude": 34.7304,
     "centerLongitude": -86.5861,
     "areaSize": 0.1,
@@ -112,14 +98,14 @@
     "id": "d136b6ea-3950-4691-bf56-c84ec7d89d72",
     "moduleClass": "org.sensorhub.impl.sensor.fakegps.FakeGpsSensor",
     "name": "Simulated GPS Sensor",
-    "autoStart": true
+    "autoStart": false
   },
   {
     "objClass": "org.sensorhub.impl.sensor.fakegps.FakeGpsNetworkConfig",
     "numRoutes": 10,
     "numAssetsPerRoute": 10,
     "googleApiUrl": "https://maps.googleapis.com/maps/api/directions/json",
-    "googleApiKey": "AIzaSyCSK00PdeC2rmT85yYiKiAl3CwTVt0YKVg",
+    "googleApiKey": "${GOOGLE_API_KEY}",
     "centerLatitude": 34.7304,
     "centerLongitude": -86.5861,
     "areaSize": 0.25,
@@ -166,16 +152,52 @@
     "moduleClass": "org.sensorhub.impl.sensor.fakeweather.FakeWeatherNetwork",
     "name": "Simulated Weather Network",
     "autoStart": false
+  },
+  {
+    "objClass": "org.sensorhub.impl.sensor.isa.ISAConfig",
+    "networkID": "701149",
+    "lastUpdated": "2021-05-20T13:56:43.444+0200",
+    "id": "351ee50e-cd3f-41e9-ba35-1ad8da236c97",
+    "moduleClass": "org.sensorhub.impl.sensor.isa.ISADriver",
+    "name": "ISA Network Driver",
+    "autoStart": true
+  },
+  {
+    "objClass": "org.sensorhub.impl.sensor.uas.config.UasConfig",
+    "serialNumber": "uas001",
+    "connection": {
+      "objClass": "org.sensorhub.impl.sensor.uas.config.Connection",
+      "transportStreamPath": "/home/alex/Projects/OGC/Testbed17/Video_Data/S06.ts",
+      "fps": 30,
+      "loop": true
+    },
+    "outputs": {
+      "objClass": "org.sensorhub.impl.sensor.uas.config.Outputs",
+      "enableAirframePosition": true,
+      "enableFullTelemetry": false,
+      "enableGeoRefImageFrame": true,
+      "enableGimbalAttitude": true,
+      "enableIdentification": false,
+      "enableSecurity": false,
+      "enableTargetIndicators": false,
+      "enableVideo": true
+    },
+    "lastUpdated": "2021-06-09T22:24:55.886+0200",
+    "id": "693c1b41-994e-4d87-be83-e1023dc7a143",
+    "moduleClass": "org.sensorhub.impl.sensor.uas.UasSensor",
+    "name": "MISB UAS",
+    "autoStart": false
   },  
   {
     "objClass": "org.sensorhub.impl.database.obs.ProcedureObsEventDatabaseConfig",
     "dbConfig": {
       "objClass": "org.sensorhub.impl.datastore.h2.MVObsDatabaseConfig",
       "indexObsLocation": false,
-      "storagePath": "all_obs_h2.dat",
+      "storagePath": "data/all_obs_h2.dat",
       "memoryCacheSize": 1024,
       "autoCommitBufferSize": 1024,
       "useCompression": false,
+      "idProviderType": "UID_HASH",
       "readOnly": false,
       "moduleClass": "org.sensorhub.impl.datastore.h2.MVObsDatabase",
       "autoStart": false
@@ -183,9 +205,15 @@
     "procedureUIDs": [
       "*"
     ],
+    "autoPurgeConfig": {
+      "objClass": "org.sensorhub.impl.database.obs.MaxAgeAutoPurgeConfig",
+      "maxRecordAge": 84600.0,
+      "enabled": true,
+      "purgePeriod": 600.0
+    },
     "minCommitPeriod": 10000,
     "processEvents": true,
-    "databaseNum": 7,
+    "databaseNum": 5,
     "id": "d6592d73-f4be-402f-b2cd-48e39fa90123",
     "moduleClass": "org.sensorhub.impl.database.obs.ProcedureObsEventDatabase",
     "name": "All Obs Database",
@@ -194,7 +222,7 @@
   {
     "objClass": "org.sensorhub.impl.datastore.h2.MVObsDatabaseConfig",
     "indexObsLocation": false,
-    "storagePath": "sos_obs_h2.dat",
+    "storagePath": "data/sos_obs_h2.dat",
     "memoryCacheSize": 1024,
     "autoCommitBufferSize": 1024,
     "useCompression": false,
@@ -208,7 +236,7 @@
   {
     "objClass": "org.sensorhub.impl.datastore.h2.MVObsDatabaseConfig",
     "indexObsLocation": false,
-    "storagePath": "sweapi_obs_h2.dat",
+    "storagePath": "data/sweapi_obs_h2.dat",
     "memoryCacheSize": 1024,
     "autoCommitBufferSize": 1024,
     "useCompression": false,
@@ -236,6 +264,29 @@
     "id": "86e2a6f1-5260-481b-a7e2-15247ee9c288",
     "moduleClass": "org.sensorhub.impl.usgs.water.USGSWaterDataArchive",
     "name": "USGS Water Database",
+    "autoStart": false
+  },
+  {
+    "objClass": "org.sensorhub.impl.service.masbus.MasbusSosConfig",
+    "endpoint": "http://masbus.riversideresearch.org:8484/cxf/sos/2.0/kvp",
+    "databaseID": "0309491d-d5cb-4f2f-9b95-166179c66746",
+    "procedures": [
+      "urn:ogc:object:Sensor:McQ:Omnisense-10712",
+      "urn:ogc:object:Sensor:McQ:Omnisense-10721",
+      "urn:ogc:object:Sensor:McQ:Omnisense-10728",
+      "urn:ogc:object:Sensor:TRSS:MM101-0016-000004-EA--P",
+      "urn:ogc:object:Sensor:TRSS:MM101-0019-000006-EAI-P",
+      "urn:ogc:object:Sensor:TRSS:MM101-0019-000007-EAI-P",
+      "urn:ogc:object:Sensor:TRSS:MM101-0019-000008-EAM-P",
+      "urn:ogc:object:Sensor:TRSS:MM201-0016-000001-EAM-P",
+      "urn:ogc:object:Sensor:TRSS:MM201-0016-000002-EAI-P",
+      "urn:ogc:object:Sensor:TRSS:MM201-0016-000003-EAI-P",
+      "urn:ogc:object:Sensor:TRSS:MM201-0016-000004-EA--P",
+      "urn:ogc:object:Sensor:TRSS:MM201-0019-000008-EAM-P"
+    ],
+    "id": "475c1560-aee7-48e2-a5ba-11205932b8ee",
+    "moduleClass": "org.sensorhub.impl.service.masbus.MasbusSosClient",
+    "name": "MASBUS SOS Client",
     "autoStart": true
   },
   {
@@ -437,7 +488,7 @@
     "dbConfig": {
       "objClass": "org.sensorhub.impl.service.sta.STADatabaseConfig",
       "indexObsLocation": false,
-      "storagePath": "sta_db.dat",
+      "storagePath": "data/sta_db.dat",
       "memoryCacheSize": 5120,
       "autoCommitBufferSize": 1024,
       "useCompression": false,
@@ -470,7 +521,7 @@
     "autoStart": true
   },
   {
-    "objClass": "org.sensorhub.impl.service.sweapi.SWEApiServiceConfig",
+    "objClass": "org.sensorhub.impl.service.sweapi.SWEApiWithMqttServiceConfig",
     "databaseID": "0309491d-d5cb-4f2f-9b95-166179c66747",
     "exposedResources": {
       "objClass": "org.sensorhub.impl.datastore.view.ProcedureObsDatabaseViewConfig",
@@ -507,7 +558,7 @@
     "enableSOAP": true,
     "endPoint": "/api",
     "id": "9d23a6a7-7455-41d1-9f1d-494be4e2463c",
-    "moduleClass": "org.sensorhub.impl.service.sweapi.SWEApiService",
+    "moduleClass": "org.sensorhub.impl.service.sweapi.SWEApiWithMqttService",
     "name": "SWE API Service",
     "autoStart": true
   },
@@ -520,33 +571,8 @@
     "autoStart": true
   },
   {
-    "objClass": "org.sensorhub.impl.sensor.uas.config.UasConfig",
-    "serialNumber": "uas001",
-    "connection": {
-      "objClass": "org.sensorhub.impl.sensor.uas.config.Connection",
-      "transportStreamPath": "/home/alex/Projects/OGC/Testbed17/Video_Data/S06.ts",
-      "fps": 30
-    },
-    "outputs": {
-      "objClass": "org.sensorhub.impl.sensor.uas.config.Outputs",
-      "enableAirframePosition": true,
-      "enableFullTelemetry": false,
-      "enableGeoRefImageFrame": true,
-      "enableGimbalAttitude": true,
-      "enableIdentification": false,
-      "enableSecurity": false,
-      "enableTargetIndicators": false,
-      "enableVideo": true
-    },
-    "lastUpdated": "2021-06-09T22:24:55.886+0200",
-    "id": "693c1b41-994e-4d87-be83-e1023dc7a143",
-    "moduleClass": "org.sensorhub.impl.sensor.uas.UasSensor",
-    "name": "MISB UAS",
-    "autoStart": false
-  },
-  {
     "objClass": "org.sensorhub.impl.processing.SMLProcessConfig",
-    "sensorML": "./config/processchain-misb-vmti.xml",
+    "sensorML": "./sml/processchain-misb-vmti.xml",
     "id": "ea6c9c7d-91b3-458e-a52c-007237f859ed",
     "moduleClass": "org.sensorhub.impl.processing.SMLProcessImpl",
     "name": "VMTI Process",
@@ -554,7 +580,7 @@
   },
   {
     "objClass": "org.sensorhub.impl.processing.SMLProcessConfig",
-    "sensorML": "./config/processchain-misb-georef.xml",
+    "sensorML": "./sml/processchain-misb-georef.xml",
     "id": "ea6c9c7d-91b3-458e-a52c-007237f859ef",
     "moduleClass": "org.sensorhub.impl.processing.SMLProcessImpl",
     "name": "GeoRef Process",

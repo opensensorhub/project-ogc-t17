@@ -1,5 +1,10 @@
+plugins {
+  id 'com.palantir.docker' version '0.27.0'
+  id 'com.palantir.docker-run' version '0.27.0'
+}
+
 apply from: gradle.oshCoreDir + '/common.gradle'
-version = "0.1.0"
+version = "0.2.0-" + buildNumber;
 
 dependencies {
   implementation 'org.sensorhub:sensorhub-core:' + oshCoreVersion
@@ -9,6 +14,7 @@ dependencies {
   implementation 'org.sensorhub:sensorhub-service-video:[0.1,2.0)'
   implementation 'org.sensorhub:sensorhub-service-sensorthings:[0.1,2.0)'
   implementation 'org.sensorhub:sensorhub-service-mqtt-hivemq:[0.1,2.0)'
+  implementation 'org.sensorhub:sensorhub-service-sweapi-mqtt:[0.1,2.0)'
   implementation 'org.sensorhub:sensorhub-driver-fakegps:[0.1,2.0)'
   implementation 'org.sensorhub:sensorhub-driver-fakeweather:[0.1,2.0)'
   implementation 'org.sensorhub:sensorhub-driver-misb-uas:[0.1,2.0)'
@@ -20,6 +26,7 @@ dependencies {
   implementation 'org.sensorhub:sensorhub-process-ffmpeg:[0.1,2.0)'
   implementation 'org.sensorhub:sensorhub-process-opencv:[0.1,2.0)'
   implementation project('sensorhub-process-t17')
+  implementation project('sensorhub-service-masbus')
 }
 
 configurations {
@@ -32,14 +39,17 @@ distributions {
   main {
     contents {
       from 'scripts'
-      from 'config'
+      from('config')
       from 'README.md'
+      into('sml') {
+        from 'sml'
+      }
       into('web') {
         from 'web'
       }
       into('lib') {
         from project.configurations.runtimeClasspath
-        // excelude native libs that we don't need
+        // exclude native libs that we don't need
         exclude '*-android-*.jar'
         exclude '*-windows-*.jar'
         exclude '*-macosx-*.jar'
@@ -50,6 +60,27 @@ distributions {
     }
   }
 }
+
+docker {
+  dockerfile file('dockerfile')
+  name "${project.name}:${project.version}"
+  tag 'gcr', "gcr.io/osh-cloud/${docker.name}"
+  files tasks.distZip.outputs,'deploy/osh-node'
+  buildArgs([
+    OSH_NODE_NAME: "${project.name}-${project.version}"
+  ])
+}
+
+dockerRun {
+  name "${project.name}"
+  image "${docker.name}"
+  volumes 'build/tmp': '/opt/osh-node/data'
+  ports '8080:8080'
+  daemonize true
+  clean true
+}
+
+
 
 
 
