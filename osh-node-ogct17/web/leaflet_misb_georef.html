@@ -63,7 +63,7 @@
             }
             
             // query SOS stream
-            var ws_loc = new WebSocket(wsRequest + "offering=urn:osh:sensor:uas:predator001&observedProperty=http://www.opengis.net/def/property/OGC/0/PlatformLocation&temporalFilter=phenomenonTime,now/2100-01-01Z&responseFormat=application/json");
+            var ws_loc = new WebSocket(wsRequest + "offering=urn:osh:sensor:uas:predator001&observedProperty=http://www.opengis.net/def/property/OGC/0/SensorLocation&temporalFilter=phenomenonTime,now/2100-01-01Z&responseFormat=application/json");
             ws_loc.onmessage = function (event) {
                 reader_loc.readAsText(event.data);
                 //ws_loc.close();
@@ -112,8 +112,8 @@
             
             // query SOS stream
             var currentUrl = window.location;
-            var ws_georef = new WebSocket(wsRequest + "offering=urn:osh:process:georef&observedProperty=http://sensorml.com/ont/misb/property/GeoRefImageFrame&temporalFilter=phenomenonTime,now/2100-01-01Z&responseFormat=application/json");
-            //var ws_georef = new WebSocket(wsRequest + "offering=urn:osh:sensor:uas:predator001&observedProperty=http://sensorml.com/ont/misb/property/GeoRefImageFrame&temporalFilter=phenomenonTime,now/2100-01-01Z&responseFormat=application/json");
+            var ws_georef = new WebSocket(wsRequest + "offering=urn:osh:process:georef&observedProperty=http://sensorml.com/ont/misb0601/property/GeoRefImageFrame&temporalFilter=phenomenonTime,now/2100-01-01Z&responseFormat=application/json");
+            //var ws_georef = new WebSocket(wsRequest + "offering=urn:osh:sensor:uas:predator001&observedProperty=http://sensorml.com/ont/misb0601/property/GeoRefImageFrame&temporalFilter=phenomenonTime,now/2100-01-01Z&responseFormat=application/json");
             
             ws_georef.onmessage = function (event) {
                 reader_georef.readAsText(event.data);
@@ -156,7 +156,7 @@
             
             // query SOS stream
             var currentUrl = window.location;
-            var ws_target = new WebSocket(wsRequest + "offering=urn:osh:process:vmti&observedProperty=http://sensorml.com/ont/misb/property/TargetLocation&temporalFilter=phenomenonTime,now/2100-01-01Z&responseFormat=application/json");
+            var ws_target = new WebSocket(wsRequest + "offering=urn:osh:process:vmti&observedProperty=http://sensorml.com/ont/swe/property/TargetLocation&temporalFilter=phenomenonTime,now/2100-01-01Z&responseFormat=application/json");
             
             ws_target.onmessage = function (event) {
                 reader_target.readAsText(event.data);

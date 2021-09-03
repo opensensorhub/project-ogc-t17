@@ -3,7 +3,7 @@
   <gml:identifier codeSpace="uid">urn:osh:process:vmti</gml:identifier>
   <gml:name>MISB UAS - Video Moving Target Geo-Referencing</gml:name>
   <sml:outputs>
-    <sml:OutputList>      
+    <sml:OutputList>
       <sml:output name="targetLocation">
 	      <swe:DataRecord>
 	        <swe:label>Target Location</swe:label>
@@ -43,7 +43,7 @@
 		          </swe:coordinate>
 		        </swe:Vector>
           </swe:field>
-        </swe:DataRecord>        
+        </swe:DataRecord>
       </sml:output>
     </sml:OutputList>
   </sml:outputs>
@@ -51,11 +51,11 @@
     <sml:ComponentList>
       <sml:component name="source0">
         <sml:SimpleProcess gml:id="P1">
-          <gml:identifier codeSpace="uid">urn:socom:sensor:uas:uas001</gml:identifier>
+          <gml:identifier codeSpace="uid">urn:osh:sensor:uas:predator001</gml:identifier>
           <sml:typeOf xlink:href="urn:osh:process:datasource:stream"/>
           <sml:configuration>
             <sml:Settings>
-              <sml:setValue ref="parameters/producerURI">urn:socom:sensor:uas:uas001</sml:setValue>
+              <sml:setValue ref="parameters/producerURI">urn:osh:sensor:uas:predator001</sml:setValue>
             </sml:Settings>
           </sml:configuration>
         </sml:SimpleProcess>
@@ -126,13 +126,13 @@
     <sml:ConnectionList>
       <sml:connection>
         <sml:Link>
-          <sml:source ref="components/source0/outputs/UasVideo/img"/>
+          <sml:source ref="components/source0/outputs/video/img"/>
           <sml:destination ref="components/decoder/inputs/codedFrame/img"/>
         </sml:Link>
       </sml:connection>
       <sml:connection>
         <sml:Link>
-          <sml:source ref="components/source0/outputs/UasVideo/time"/>
+          <sml:source ref="components/source0/outputs/video/time"/>
           <sml:destination ref="components/decoder/inputs/codedFrame/time"/>
         </sml:Link>
       </sml:connection>
@@ -174,7 +174,7 @@
       </sml:connection>
       <sml:connection>
         <sml:Link>
-          <sml:source ref="components/source0/outputs/GeoRefImageFrame/geoRefImageFrame/fovHorizontal"/>
+          <sml:source ref="components/source0/outputs/sensorParams/params/hfov"/>
           <sml:destination ref="components/fov_to_cam_matrix/inputs/fov"/>
         </sml:Link>
       </sml:connection>
@@ -186,19 +186,19 @@
       </sml:connection>
       <sml:connection>
         <sml:Link>
-          <sml:source ref="components/source0/outputs/AirframePosition/platformLocation"/>
+          <sml:source ref="components/source0/outputs/sensorLocation/location"/>
           <sml:destination ref="components/geoloc_target/parameters/platformLocation"/>
         </sml:Link>
       </sml:connection>
       <sml:connection>
         <sml:Link>
-          <sml:source ref="components/source0/outputs/AirframePosition/platformHPR"/>
+          <sml:source ref="components/source0/outputs/platformAttitude/attitude"/>
           <sml:destination ref="components/geoloc_target/parameters/platformAttitude"/>
         </sml:Link>
       </sml:connection>
       <sml:connection>
         <sml:Link>
-          <sml:source ref="components/source0/outputs/GimbalAttitude/attitude"/>
+          <sml:source ref="components/source0/outputs/sensorAttitude/attitude"/>
           <sml:destination ref="components/geoloc_target/parameters/camOrientation"/>
         </sml:Link>
       </sml:connection>

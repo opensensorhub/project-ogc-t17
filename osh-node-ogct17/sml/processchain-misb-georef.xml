@@ -5,7 +5,7 @@
   <sml:outputs>
     <sml:OutputList>
       <sml:output name="geoRefImageFrame">
-        <swe:DataRecord definition="http://sensorml.com/ont/misb/property/GeoRefImageFrame">
+        <swe:DataRecord definition="http://sensorml.com/ont/misb0601/property/GeoRefImageFrame">
           <swe:label>Geo-Referenced Image Frame</swe:label>
           <swe:field name="time">
             <swe:Time definition="http://www.opengis.net/def/property/OGC/0/SamplingTime" referenceFrame="http://www.opengis.net/def/trs/BIPM/0/UTC">
@@ -15,7 +15,7 @@
 		        </swe:Time>
           </swe:field>
           <swe:field name="center">
-            <swe:Vector definition="http://sensorml.com/ont/misb/property/FrameCenterLocation" referenceFrame="http://www.opengis.net/def/crs/EPSG/0/4979">
+            <swe:Vector definition="http://sensorml.com/ont/misb0601/property/FrameCenterLocation" referenceFrame="http://www.opengis.net/def/crs/EPSG/0/4979">
               <swe:label>Frame Center</swe:label>
               <swe:coordinate name="lat">
                 <swe:Quantity definition="http://sensorml.com/ont/swe/property/GeodeticLatitude" axisID="Lat">
@@ -38,7 +38,7 @@
             </swe:Vector>
           </swe:field>
           <swe:field name="ulc">
-            <swe:Vector definition="http://sensorml.com/ont/misb/property/FrameUpperLeftCornerLocation" referenceFrame="http://www.opengis.net/def/crs/EPSG/0/4979">
+            <swe:Vector definition="http://sensorml.com/ont/misb0601/property/FrameUpperLeftCornerLocation" referenceFrame="http://www.opengis.net/def/crs/EPSG/0/4979">
               <swe:label>Upper Left Corner</swe:label>
               <swe:coordinate name="lat">
                 <swe:Quantity definition="http://sensorml.com/ont/swe/property/GeodeticLatitude" axisID="Lat">
@@ -61,7 +61,7 @@
             </swe:Vector>
           </swe:field>
           <swe:field name="urc">
-            <swe:Vector definition="http://sensorml.com/ont/misb/property/FrameUpperRightCornerLocation" referenceFrame="http://www.opengis.net/def/crs/EPSG/0/4979">
+            <swe:Vector definition="http://sensorml.com/ont/misb0601/property/FrameUpperRightCornerLocation" referenceFrame="http://www.opengis.net/def/crs/EPSG/0/4979">
               <swe:label>Upper Right Corner</swe:label>
               <swe:coordinate name="lat">
                 <swe:Quantity definition="http://sensorml.com/ont/swe/property/GeodeticLatitude" axisID="Lat">
@@ -84,7 +84,7 @@
             </swe:Vector>
           </swe:field>
           <swe:field name="lrc">
-            <swe:Vector definition="http://sensorml.com/ont/misb/property/FrameLowerRightCornerLocation" referenceFrame="http://www.opengis.net/def/crs/EPSG/0/4979">
+            <swe:Vector definition="http://sensorml.com/ont/misb0601/property/FrameLowerRightCornerLocation" referenceFrame="http://www.opengis.net/def/crs/EPSG/0/4979">
               <swe:label>Lower Right Corner</swe:label>
               <swe:coordinate name="lat">
                 <swe:Quantity definition="http://sensorml.com/ont/swe/property/GeodeticLatitude" axisID="Lat">
@@ -107,7 +107,7 @@
             </swe:Vector>
           </swe:field>
           <swe:field name="llc">
-            <swe:Vector definition="http://sensorml.com/ont/misb/property/FrameLowerLeftCornerLocation" referenceFrame="http://www.opengis.net/def/crs/EPSG/0/4979">
+            <swe:Vector definition="http://sensorml.com/ont/misb0601/property/FrameLowerLeftCornerLocation" referenceFrame="http://www.opengis.net/def/crs/EPSG/0/4979">
               <swe:label>Lower Left Corner</swe:label>
               <swe:coordinate name="lat">
                 <swe:Quantity definition="http://sensorml.com/ont/swe/property/GeodeticLatitude" axisID="Lat">
@@ -286,13 +286,13 @@
       <!-- Video display -->      
       <!--<sml:connection>
         <sml:Link>
-          <sml:source ref="components/source0/outputs/UasVideo/img"/>
+          <sml:source ref="components/source0/outputs/video/img"/>
           <sml:destination ref="components/decoder/inputs/codedFrame/img"/>
         </sml:Link>
       </sml:connection>
       <sml:connection>
         <sml:Link>
-          <sml:source ref="components/source0/outputs/UasVideo/time"/>
+          <sml:source ref="components/source0/outputs/video/time"/>
           <sml:destination ref="components/decoder/inputs/codedFrame/time"/>
         </sml:Link>
       </sml:connection>
