@@ -35,11 +35,13 @@ import org.sensorhub.utils.Lambdas;
 import org.vast.data.DataRecordImpl;
 import org.vast.data.ScalarIterator;
 import org.vast.data.TextEncodingImpl;
+import org.vast.ogc.gml.IGeoFeature;
 import org.vast.ows.sos.GetResultRequest;
 import org.vast.ows.swe.DescribeSensorRequest;
 import org.vast.swe.SWEHelper;
 import org.vast.util.TimeExtent;
 import com.google.common.hash.HashCode;
+import net.opengis.gml.v32.AbstractFeature;
 import net.opengis.swe.v20.DataComponent;
 import net.opengis.swe.v20.DataRecord;
 import net.opengis.swe.v20.HasUom;
@@ -58,6 +60,7 @@ public class MasbusSosClient extends AbstractModule<MasbusSosConfig>
 {
     SOSClient sosClient;
     ProcedureObsTransactionHandler txnHandler;
+    Set<String> foiIds;
     
 
     @Override
@@ -88,6 +91,8 @@ public class MasbusSosClient extends AbstractModule<MasbusSosConfig>
         grRequest.setGetServer(config.endpoint);
         grRequest.setVersion("2.0.0");
         this.sosClient = new SOSClient(grRequest, false);
+        
+        this.foiIds = new HashSet<>();
     }
 
 
@@ -134,7 +139,7 @@ public class MasbusSosClient extends AbstractModule<MasbusSosConfig>
         var obsList = sosClient.getObservations(procUID, TimeExtent.ALL_TIMES);
         Map<HashCode, DataStreamTransactionHandler> dsHandlers = new HashMap<>();
         Set<String> outputNames = new HashSet<>();
-        
+                
         for (var obs: obsList)
         {
             var obsProp = obs.getObservedProperty().getHref();
@@ -154,7 +159,18 @@ public class MasbusSosClient extends AbstractModule<MasbusSosConfig>
                 }
             }
             
-            // insert timestamp
+            // register FOI if needed
+            var foi = obs.getFeatureOfInterest();
+            if (!foiIds.contains(foi.getId()))
+            {
+                // patch foi UID
+                ((AbstractFeature)foi).setUniqueIdentifier("urn:masbus:foi:" + foi.getId());
+                ((AbstractFeature)foi).setName("MASBUS FOI " + foi.getId());
+                procHandler.addOrUpdateFoi((IGeoFeature)foi);
+                foiIds.add(foi.getId());
+            }
+            
+            // add timestamp to result record
             var swe = new SWEHelper();
             var ts = swe.createTime()
                 .name("time")

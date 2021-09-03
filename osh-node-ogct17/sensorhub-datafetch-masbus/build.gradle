@@ -1,5 +1,5 @@
-description = 'MASBUS SOS Client'
-ext.details = 'SOS client for fetching metadata and observations from MASBUS SOS server'
+description = 'MASBUS Data Source'
+ext.details = 'Service for regularly fetching metadata and observations from MASBUS SOS server'
 version = '0.1'
 
 dependencies {
