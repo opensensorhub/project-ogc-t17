@@ -26,7 +26,7 @@ dependencies {
   implementation 'org.sensorhub:sensorhub-process-ffmpeg:[0.1,2.0)'
   implementation 'org.sensorhub:sensorhub-process-opencv:[0.1,2.0)'
   implementation project('sensorhub-process-t17')
-  implementation project('sensorhub-service-masbus')
+  implementation project('sensorhub-datafetch-masbus')
 }
 
 configurations {

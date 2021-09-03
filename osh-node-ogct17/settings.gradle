@@ -10,4 +10,4 @@ if (!new File(gradle.oshAddonsDir).exists())
 includeBuild gradle.oshCoreDir
 includeBuild gradle.oshAddonsDir
 include 'sensorhub-process-t17'
-include 'sensorhub-service-masbus'
+include 'sensorhub-datafetch-masbus'

@@ -164,7 +164,7 @@
   },
   {
     "objClass": "org.sensorhub.impl.sensor.uas.config.UasConfig",
-    "serialNumber": "uas001",
+    "serialNumber": "predator001",
     "connection": {
       "objClass": "org.sensorhub.impl.sensor.uas.config.Connection",
       "transportStreamPath": "/home/alex/Projects/OGC/Testbed17/Video_Data/S06.ts",
@@ -174,9 +174,9 @@
     "outputs": {
       "objClass": "org.sensorhub.impl.sensor.uas.config.Outputs",
       "enableAirframePosition": true,
-      "enableFullTelemetry": false,
       "enableGeoRefImageFrame": true,
       "enableGimbalAttitude": true,
+      "enableSensorParams": true,
       "enableIdentification": false,
       "enableSecurity": false,
       "enableTargetIndicators": false,
@@ -185,7 +185,7 @@
     "lastUpdated": "2021-06-09T22:24:55.886+0200",
     "id": "693c1b41-994e-4d87-be83-e1023dc7a143",
     "moduleClass": "org.sensorhub.impl.sensor.uas.UasSensor",
-    "name": "MISB UAS",
+    "name": "Predator UAS (MISB)",
     "autoStart": false
   },  
   {
@@ -523,7 +523,7 @@
     "autoStart": true
   },
   {
-    "objClass": "org.sensorhub.impl.service.sweapi.SWEApiWithMqttServiceConfig",
+    "objClass": "org.sensorhub.impl.service.sweapi.SWEApiServiceConfig",
     "databaseID": "0309491d-d5cb-4f2f-9b95-166179c66747",
     "exposedResources": {
       "objClass": "org.sensorhub.impl.datastore.view.ProcedureObsDatabaseViewConfig",
@@ -560,8 +560,15 @@
     "enableSOAP": true,
     "endPoint": "/api",
     "id": "9d23a6a7-7455-41d1-9f1d-494be4e2463c",
-    "moduleClass": "org.sensorhub.impl.service.sweapi.SWEApiWithMqttService",
-    "name": "SWE API Service",
+    "moduleClass": "org.sensorhub.impl.service.sweapi.SWEApiService",
+    "name": "SWE API HTTP Service",
+    "autoStart": true
+  },
+  {
+    "objClass": "org.sensorhub.impl.service.sweapi.SWEApiMqttServiceConfig",
+    "id": "07e346e7-7fa3-4d65-8538-0df566ce726b",
+    "moduleClass": "org.sensorhub.impl.service.sweapi.SWEApiMqttService",
+    "name": "SWE API MQTT Service",
     "autoStart": true
   },
   {
