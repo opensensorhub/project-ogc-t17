@@ -23,23 +23,24 @@
             //////////////////////////////////////
             
             var marker;
-            var polyline;            
-            var reader1 = new FileReader();
+            var polyline;
             var uavIcon = L.icon({
               iconUrl: 'img/plane.png',
               iconSize: [30, 30],
               iconAnchor: [15, 15],
             });
+            var heading = 0;
             
-            reader1.onload = function() {
-                var rec = reader1.result;
+            var reader_loc = new FileReader();
+            reader_loc.onload = function() {
+                var rec = reader_loc.result;
                 //console.log(rec);
                 var pos = JSON.parse(rec);
-                document.getElementById("text_pos").innerHTML = JSON.stringify(pos, null, 2);
+                document.getElementById("text_loc").innerHTML = JSON.stringify(pos, null, 2);
                 
                 var point = [
-                  pos.platformLocation.lat,
-                  pos.platformLocation.lon
+                  pos.location.lat,
+                  pos.location.lon
                 ];
                   
                 if (polyline == null) {
@@ -47,20 +48,37 @@
                   polyline = L.polyline([point], {color: 'blue', weight: 3}).addTo(map);
                 } else {
                   marker.setLatLng(point);
-                  marker.setRotationAngle(pos.platformHPR.heading);
+                  marker.setRotationAngle(heading);
                   polyline.addLatLng(point);
                 }
             }
             
-            // query SOS stream
-            var ws1 = new WebSocket(wsRequest + "offering=urn:socom:sensor:uas:uas001&observedProperty=http://sensorml.com/ont/swe/property/AirframePosition&temporalFilter=phenomenonTime,now/2100-01-01Z&responseFormat=application/json");
-            
-            ws1.onmessage = function (event) {
-                reader1.readAsText(event.data);
-                //ws1.close();
+            var reader_att = new FileReader();
+            reader_att.onload = function() {
+                var rec = reader_att.result;
+                //console.log(rec);
+                var pos = JSON.parse(rec);
+                document.getElementById("text_att").innerHTML = JSON.stringify(pos, null, 2);
+                heading = pos.attitude.heading;
             }
-            ws1.onerror = function (event) {
-                ws1.close();
+            
+            // query SOS stream
+            var ws_loc = new WebSocket(wsRequest + "offering=urn:osh:sensor:uas:predator001&observedProperty=http://www.opengis.net/def/property/OGC/0/PlatformLocation&temporalFilter=phenomenonTime,now/2100-01-01Z&responseFormat=application/json");
+            ws_loc.onmessage = function (event) {
+                reader_loc.readAsText(event.data);
+                //ws_loc.close();
+            }
+            ws_loc.onerror = function (event) {
+                ws_loc.close();
+            }
+            
+            var ws_att = new WebSocket(wsRequest + "offering=urn:osh:sensor:uas:predator001&observedProperty=http://www.opengis.net/def/property/OGC/0/PlatformOrientation&temporalFilter=phenomenonTime,now/2100-01-01Z&responseFormat=application/json");
+            ws_att.onmessage = function (event) {
+                reader_att.readAsText(event.data);
+                //ws_att.close();
+            }
+            ws_att.onerror = function (event) {
+                ws_att.close();
             }
             
             
@@ -69,14 +87,13 @@
             ////////////////////////////////////////////
 
             var polygon;
-            var reader2 = new FileReader();
-            
-            reader2.onload = function() {
-                var rec = reader2.result;
+            var reader_georef = new FileReader();            
+            reader_georef.onload = function() {
+                var rec = reader_georef.result;
                 //console.log(rec);                
                 var georef = JSON.parse(rec);
                 document.getElementById("text_georef").innerHTML = JSON.stringify(georef, null, 2);
-                //georef = georef.geoRefImageFrame;
+                //georef = georef.geoRef;
                 
                 var points = [
                     [georef.ulc.lat, georef.ulc.lon],
@@ -95,15 +112,15 @@
             
             // query SOS stream
             var currentUrl = window.location;
-            var ws2 = new WebSocket(wsRequest + "offering=urn:osh:process:georef&observedProperty=http://sensorml.com/ont/swe/property/GeoRefImageFrame&temporalFilter=phenomenonTime,now/2100-01-01Z&responseFormat=application/json");
-            //var ws2 = new WebSocket(wsRequest + "offering=urn:socom:sensor:uas:uas001&observedProperty=http://sensorml.com/ont/swe/property/GeoRefImageFrame&temporalFilter=phenomenonTime,now/2100-01-01Z&responseFormat=application/json");
+            var ws_georef = new WebSocket(wsRequest + "offering=urn:osh:process:georef&observedProperty=http://sensorml.com/ont/misb/property/GeoRefImageFrame&temporalFilter=phenomenonTime,now/2100-01-01Z&responseFormat=application/json");
+            //var ws_georef = new WebSocket(wsRequest + "offering=urn:osh:sensor:uas:predator001&observedProperty=http://sensorml.com/ont/misb/property/GeoRefImageFrame&temporalFilter=phenomenonTime,now/2100-01-01Z&responseFormat=application/json");
             
-            ws2.onmessage = function (event) {
-                reader2.readAsText(event.data);
+            ws_georef.onmessage = function (event) {
+                reader_georef.readAsText(event.data);
                 //ws2.close();
             }
-            ws2.onerror = function (event) {
-                ws2.close();
+            ws_georef.onerror = function (event) {
+                ws_georef.close();
             }
             
             
@@ -112,15 +129,15 @@
             /////////////////////////////////////////
 
             var marker3;
-            var reader3 = new FileReader();
             var targetIcon = L.icon({
               iconUrl: 'img/draw_point_on.png',
               iconSize: [20, 20],
               iconAnchor: [10, 10],
             });
             
-            reader3.onload = function() {
-                var rec = reader3.result;
+            var reader_target = new FileReader();
+            reader_target.onload = function() {
+                var rec = reader_target.result;
                 //console.log(rec);                
                 var targetLoc = JSON.parse(rec);
                 document.getElementById("text_target").innerHTML = JSON.stringify(targetLoc, null, 2);
@@ -139,14 +156,14 @@
             
             // query SOS stream
             var currentUrl = window.location;
-            var ws3 = new WebSocket(wsRequest + "offering=urn:osh:process:vmti&observedProperty=http://sensorml.com/ont/swe/property/TargetLocation&temporalFilter=phenomenonTime,now/2100-01-01Z&responseFormat=application/json");
+            var ws_target = new WebSocket(wsRequest + "offering=urn:osh:process:vmti&observedProperty=http://sensorml.com/ont/misb/property/TargetLocation&temporalFilter=phenomenonTime,now/2100-01-01Z&responseFormat=application/json");
             
-            ws3.onmessage = function (event) {
-                reader3.readAsText(event.data);
-                //ws3.close();
+            ws_target.onmessage = function (event) {
+                reader_target.readAsText(event.data);
+                //ws_target.close();
             }
-            ws3.onerror = function (event) {
-                ws3.close();
+            ws_target.onerror = function (event) {
+                ws_target.close();
             }
         }
 
@@ -161,9 +178,13 @@
         </td>
         <td>
           <div style="position:relative; float:left">
-            <b><pre>UAV Position</pre></b>
+            <b><pre>UAV Location</pre></b>
             <p></p>
-            <pre id="text_pos">Waiting for first data packet...</pre>
+            <pre id="text_loc">Waiting for first data packet...</pre>
+            <p>&nbsp;</p>
+            <b><pre>UAV Attitude</pre></b>
+            <p></p>
+            <pre id="text_att">Waiting for first data packet...</pre>
             <p>&nbsp;</p>
             <b><pre>Geo-referenced Image Frame</pre></b>
             <p></p>
