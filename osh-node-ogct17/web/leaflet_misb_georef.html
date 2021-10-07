@@ -30,6 +30,7 @@
               iconAnchor: [15, 15],
             });
             var heading = 0;
+            var prevTime = 0;
             
             var reader_loc = new FileReader();
             reader_loc.onload = function() {
@@ -38,19 +39,26 @@
                 var pos = JSON.parse(rec);
                 document.getElementById("text_loc").innerHTML = JSON.stringify(pos, null, 2);
                 
+                var time = Date.parse(pos.time);
                 var point = [
                   pos.location.lat,
                   pos.location.lon
                 ];
                   
-                if (polyline == null) {
+                if (marker == null) {
                   marker = L.marker(point, {color: 'red', icon: uavIcon}).addTo(map);
-                  polyline = L.polyline([point], {color: 'blue', weight: 3}).addTo(map);
                 } else {
                   marker.setLatLng(point);
                   marker.setRotationAngle(heading);
+                }
+                
+                if (polyline == null || prevTime > time) {
+                  polyline = L.polyline([point], {color: 'blue', weight: 3}).addTo(map);
+                } else {
                   polyline.addLatLng(point);
                 }
+                
+                prevTime = time;
             }
             
             var reader_att = new FileReader();

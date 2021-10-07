@@ -21,23 +21,23 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import org.sensorhub.api.common.SensorHubException;
-import org.sensorhub.api.database.IProcedureObsDatabase;
+import org.sensorhub.api.database.IObsSystemDatabase;
 import org.sensorhub.api.datastore.DataStoreException;
 import org.sensorhub.impl.client.sos.SOSClient;
 import org.sensorhub.impl.module.AbstractModule;
-import org.sensorhub.impl.procedure.DataStreamTransactionHandler;
-import org.sensorhub.impl.procedure.ProcedureObsTransactionHandler;
-import org.sensorhub.impl.procedure.ProcedureTransactionHandler;
-import org.sensorhub.impl.procedure.wrapper.ProcedureWrapper;
+import org.sensorhub.impl.system.DataStreamTransactionHandler;
+import org.sensorhub.impl.system.SystemDatabaseTransactionHandler;
+import org.sensorhub.impl.system.SystemTransactionHandler;
+import org.sensorhub.impl.system.wrapper.SystemWrapper;
 import org.sensorhub.utils.CallbackException;
 import org.sensorhub.utils.DataComponentChecks;
 import org.sensorhub.utils.Lambdas;
 import org.vast.data.DataRecordImpl;
 import org.vast.data.ScalarIterator;
 import org.vast.data.TextEncodingImpl;
-import org.vast.ogc.gml.IGeoFeature;
 import org.vast.ows.sos.GetResultRequest;
 import org.vast.ows.swe.DescribeSensorRequest;
+import org.vast.swe.SWEConstants;
 import org.vast.swe.SWEHelper;
 import org.vast.util.TimeExtent;
 import com.google.common.hash.HashCode;
@@ -59,7 +59,7 @@ import net.opengis.swe.v20.HasUom;
 public class MasbusSosClient extends AbstractModule<MasbusSosConfig>
 {
     SOSClient sosClient;
-    ProcedureObsTransactionHandler txnHandler;
+    SystemDatabaseTransactionHandler txnHandler;
     Set<String> foiIds;
     
 
@@ -70,21 +70,21 @@ public class MasbusSosClient extends AbstractModule<MasbusSosConfig>
         
         // get handle to write database
         // use the configured database
-        IProcedureObsDatabase writeDatabase;
+        IObsSystemDatabase writeDatabase;
         if (config.databaseID != null)
         {
-            writeDatabase = (IProcedureObsDatabase)getParentHub().getModuleRegistry()
+            writeDatabase = (IObsSystemDatabase)getParentHub().getModuleRegistry()
                 .getModuleById(config.databaseID);
         }
         
         // or default to the procedure state DB
         else
         {
-            writeDatabase = getParentHub().getProcedureRegistry().getProcedureStateDatabase();
+            writeDatabase = getParentHub().getSystemDriverRegistry().getSystemStateDatabase();
         }
         
         // prepare transaction handler
-        this.txnHandler = new ProcedureObsTransactionHandler(getParentHub().getEventBus(), writeDatabase);
+        this.txnHandler = new SystemDatabaseTransactionHandler(getParentHub().getEventBus(), writeDatabase);
         
         // prepare SOS client
         var grRequest = new GetResultRequest();
@@ -101,11 +101,11 @@ public class MasbusSosClient extends AbstractModule<MasbusSosConfig>
     {
      // fetch observation and publish to event bus
         CompletableFuture.runAsync(Lambdas.wrapException(() -> {
-            for (var procUID: config.procedures)
+            for (var sysUID: config.procedures)
             {
-                getLogger().info("Fetching data for procedure {}", procUID);
-                var procHandler = registerSensor(procUID);
-                fetchObservations(procHandler, procUID);
+                getLogger().info("Fetching data for procedure {}", sysUID);
+                var procHandler = registerSensor(sysUID);
+                fetchObservations(procHandler, sysUID);
             }
         }))
         .exceptionally(e -> {
@@ -115,28 +115,28 @@ public class MasbusSosClient extends AbstractModule<MasbusSosConfig>
     }
     
     
-    protected ProcedureTransactionHandler registerSensor(String procUID) throws SensorHubException
+    protected SystemTransactionHandler registerSensor(String sysUID) throws SensorHubException
     {
         // request SensorML description
-        var smlProc = sosClient.getSensorDescription(procUID, DescribeSensorRequest.FORMAT_SML_V1_01);
+        var smlProc = sosClient.getSensorDescription(sysUID, DescribeSensorRequest.FORMAT_SML_V1_01);
         
         // patch UID and hide I/O signals
-        smlProc.setUniqueIdentifier(procUID);
-        var procWrapper = new ProcedureWrapper(smlProc)
+        smlProc.setUniqueIdentifier(sysUID);
+        var procWrapper = new SystemWrapper(smlProc)
             .hideOutputs()
             .hideTaskableParams()
             .defaultToValidTime(TimeExtent.endNow(Instant.parse("2019-03-01T00:00:00Z")));
         
-        var procHandler = txnHandler.addOrUpdateProcedure(procWrapper);
-        getLogger().info("Registered new procedure {}", procUID);
+        var procHandler = txnHandler.addOrUpdateSystem(procWrapper);
+        getLogger().info("Registered new procedure {}", sysUID);
 
         return procHandler;
     }
     
     
-    protected void fetchObservations(ProcedureTransactionHandler procHandler, String procUID) throws SensorHubException
+    protected void fetchObservations(SystemTransactionHandler procHandler, String sysUID) throws SensorHubException
     {
-        var obsList = sosClient.getObservations(procUID, TimeExtent.ALL_TIMES);
+        var obsList = sosClient.getObservations(sysUID, TimeExtent.ALL_TIMES);
         Map<HashCode, DataStreamTransactionHandler> dsHandlers = new HashMap<>();
         Set<String> outputNames = new HashSet<>();
                 
@@ -166,7 +166,13 @@ public class MasbusSosClient extends AbstractModule<MasbusSosConfig>
                 // patch foi UID
                 ((AbstractFeature)foi).setUniqueIdentifier("urn:masbus:foi:" + foi.getId());
                 ((AbstractFeature)foi).setName("MASBUS FOI " + foi.getId());
-                procHandler.addOrUpdateFoi((IGeoFeature)foi);
+                
+                // patch geom CRS
+                String crs = ((AbstractFeature)foi).getGeometry().getSrsName();
+                if (crs.startsWith("EPSG:"))
+                    ((AbstractFeature)foi).getGeometry().setSrsName(crs.replace("EPSG:", SWEConstants.EPSG_URI_PREFIX));
+                
+                procHandler.addOrUpdateFoi(foi);
                 foiIds.add(foi.getId());
             }
             
