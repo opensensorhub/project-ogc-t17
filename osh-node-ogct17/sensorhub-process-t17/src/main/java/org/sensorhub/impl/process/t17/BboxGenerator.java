@@ -40,6 +40,7 @@ public class BboxGenerator extends ExecutableProcessImpl
     protected Time timeIn;
     protected Count numOutputBboxes;
     protected DataArray bboxesOut;
+    protected boolean restart = true;
     
     
     public BboxGenerator()
@@ -62,6 +63,8 @@ public class BboxGenerator extends ExecutableProcessImpl
             .addField("bboxList", bboxesOut = swe.createBboxList(numOutputBboxes)
                 .build())
             .build());
+        
+        restart = true;
     }
     
     
@@ -70,12 +73,23 @@ public class BboxGenerator extends ExecutableProcessImpl
     {
         var timeStamp = timeIn.getData().getDoubleValue();
         
-        var lockTime0 = Instant.parse("2012-06-29T14:32:35Z").toEpochMilli() / 1000.;
         var lockTime1 = Instant.parse("2012-06-29T14:33:15.85Z").toEpochMilli() / 1000.;
         var lockTime2 = Instant.parse("2012-06-29T14:33:59.199Z").toEpochMilli() / 1000.;
-        var lockTime3 = Instant.parse("2012-06-29T14:37:20.99Z").toEpochMilli() / 1000.;
+        var lockTime3 = Instant.parse("2012-06-29T14:37:20Z").toEpochMilli() / 1000.;
         
-        // lookup bbox
+        if (restart)
+        {
+            // clear box on startup
+            numOutputBboxes.getData().setIntValue(1);
+            bboxesOut.updateSize();
+            
+            bboxesOut.getData().setDoubleValue(0, 0);
+            bboxesOut.getData().setDoubleValue(1, 0);
+            bboxesOut.getData().setDoubleValue(2, 0);
+            bboxesOut.getData().setDoubleValue(3, 0);
+        }
+        
+        // otherwise lookup bbox by lock time
         if (timeStamp >= lockTime1 && timeStamp < lockTime1+0.033)
         {
             numOutputBboxes.getData().setIntValue(1);
@@ -101,10 +115,10 @@ public class BboxGenerator extends ExecutableProcessImpl
             numOutputBboxes.getData().setIntValue(1);
             bboxesOut.updateSize();
             
-            bboxesOut.getData().setDoubleValue(0, 260);
-            bboxesOut.getData().setDoubleValue(1, 340);
-            bboxesOut.getData().setDoubleValue(2, 40);
-            bboxesOut.getData().setDoubleValue(3, 40);
+            bboxesOut.getData().setDoubleValue(0, 0);
+            bboxesOut.getData().setDoubleValue(1, 0);
+            bboxesOut.getData().setDoubleValue(2, 0);
+            bboxesOut.getData().setDoubleValue(3, 0);
         }
         else
         {
