@@ -137,7 +137,7 @@
     "id": "d136b6ea-3950-4691-bf56-c84ec7d89d73",
     "moduleClass": "org.sensorhub.impl.sensor.fakeweather.FakeWeatherSensor",
     "name": "Simulated Weather Sensor",
-    "autoStart": true
+    "autoStart": false
   },
   {
     "objClass": "org.sensorhub.impl.sensor.fakeweather.FakeWeatherNetworkConfig",
@@ -160,7 +160,7 @@
     "objClass": "org.sensorhub.impl.sensor.isa.ISAConfig",
     "networkID": "701149",
     "simulationStartTime": "2012-06-29T14:32:00Z",
-    "simulationEndTime": "2012-06-29T14:37:00Z",
+    "simulationEndTime": "2013-06-29T14:32:00Z",
     "lastUpdated": "2021-05-20T13:56:43.444+0200",
     "id": "351ee50e-cd3f-41e9-ba35-1ad8da236c97",
     "moduleClass": "org.sensorhub.impl.sensor.isa.ISADriver",
@@ -173,7 +173,7 @@
     "connection": {
       "objClass": "org.sensorhub.impl.sensor.uas.config.Connection",
       "transportStreamPath": "../data/S06.ts",
-      "fps": 25,
+      "fps": 10,
       "loop": true
     },
     "outputs": {
@@ -191,8 +191,22 @@
     "id": "693c1b41-994e-4d87-be83-e1023dc7a143",
     "moduleClass": "org.sensorhub.impl.sensor.uas.UasSensor",
     "name": "Predator UAS (MISB)",
-    "autoStart": false
-  },  
+    "autoStart": true
+  },
+  {
+    "objClass": "org.sensorhub.impl.sensor.simuav.SimUavConfig",
+    "initLocation": {
+      "objClass": "org.sensorhub.api.sensor.PositionConfig$LLALocation",
+      "lat": -31.536451,
+      "lon": 145.798573,
+      "alt": 260.0
+    },
+    "lastUpdated": "2022-01-16T20:44:00Z",
+    "id": "144885ef-415b-4118-89a6-22e058edc3f7",
+    "moduleClass": "org.sensorhub.impl.sensor.simuav.SimUavDriver",
+    "name": "Simulated UAV",
+    "autoStart": true
+  },
   {
     "objClass": "org.sensorhub.impl.database.system.SystemDriverDatabaseConfig",
     "dbConfig": {
@@ -464,9 +478,9 @@
     "autoStart": true
   },
   {
-    "objClass": "org.sensorhub.impl.service.sweapi.SWEApiMqttServiceConfig",
+    "objClass": "org.sensorhub.impl.service.sweapi.mqtt.SWEApiMqttServiceConfig",
     "id": "07e346e7-7fa3-4d65-8538-0df566ce726b",
-    "moduleClass": "org.sensorhub.impl.service.sweapi.SWEApiMqttService",
+    "moduleClass": "org.sensorhub.impl.service.sweapi.mqtt.SWEApiMqttService",
     "name": "SWE API MQTT Service",
     "autoStart": true
   },
@@ -483,7 +497,7 @@
     "id": "ea6c9c7d-91b3-458e-a52c-007237f859ed",
     "moduleClass": "org.sensorhub.impl.processing.SMLProcessImpl",
     "name": "VMTI Process",
-    "autoStart": false
+    "autoStart": true
   },
   {
     "objClass": "org.sensorhub.impl.processing.SMLProcessConfig",
@@ -491,6 +505,6 @@
     "id": "ea6c9c7d-91b3-458e-a52c-007237f859ef",
     "moduleClass": "org.sensorhub.impl.processing.SMLProcessImpl",
     "name": "GeoRef Process",
-    "autoStart": false
+    "autoStart": true
   }
 ]

@@ -188,8 +188,22 @@
     "id": "693c1b41-994e-4d87-be83-e1023dc7a143",
     "moduleClass": "org.sensorhub.impl.sensor.uas.UasSensor",
     "name": "Predator UAS (MISB)",
-    "autoStart": false
-  },  
+    "autoStart": true
+  },
+  {
+    "objClass": "org.sensorhub.impl.sensor.simuav.SimUavConfig",
+    "initLocation": {
+      "objClass": "org.sensorhub.api.sensor.PositionConfig$LLALocation",
+      "lat": -31.536451,
+      "lon": 145.798573,
+      "alt": 260.0
+    },
+    "lastUpdated": "2022-01-16T20:44:00Z",
+    "id": "144885ef-415b-4118-89a6-22e058edc3f7",
+    "moduleClass": "org.sensorhub.impl.sensor.simuav.SimUavDriver",
+    "name": "Simulated UAV",
+    "autoStart": true
+  },
   {
     "objClass": "org.sensorhub.impl.database.system.SystemDriverDatabaseConfig",
     "dbConfig": {
@@ -461,9 +475,9 @@
     "autoStart": true
   },
   {
-    "objClass": "org.sensorhub.impl.service.sweapi.SWEApiMqttServiceConfig",
+    "objClass": "org.sensorhub.impl.service.sweapi.mqtt.SWEApiMqttServiceConfig",
     "id": "07e346e7-7fa3-4d65-8538-0df566ce726b",
-    "moduleClass": "org.sensorhub.impl.service.sweapi.SWEApiMqttService",
+    "moduleClass": "org.sensorhub.impl.service.sweapi.mqtt.SWEApiMqttService",
     "name": "SWE API MQTT Service",
     "autoStart": true
   },
