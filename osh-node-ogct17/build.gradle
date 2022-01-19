@@ -4,7 +4,7 @@ plugins {
 }
 
 apply from: gradle.oshCoreDir + '/common.gradle'
-version = "0.2.0-" + buildNumber;
+version = "0.4.0-" + buildNumber;
 
 dependencies {
   implementation 'org.sensorhub:sensorhub-core:' + oshCoreVersion
@@ -19,6 +19,7 @@ dependencies {
   implementation 'org.sensorhub:sensorhub-driver-fakeweather:[0.1,2.0)'
   implementation 'org.sensorhub:sensorhub-driver-misb-uas:[0.1,2.0)'
   implementation 'org.sensorhub:sensorhub-driver-isa:[0.1,2.0)'
+  implementation 'org.sensorhub:sensorhub-driver-simuav:[0.1,2.0)'
   implementation 'org.sensorhub:sensorhub-storage-usgswater:[0.1,2.0)'
   implementation 'org.sensorhub:sensorhub-process-utils:[0.1,2.0)'
   implementation 'org.sensorhub:sensorhub-process-vecmath:[0.1,2.0)'
@@ -54,7 +55,7 @@ distributions {
         exclude '*-windows-*.jar'
         exclude '*-macosx-*.jar'
         exclude '*-ios-*.jar'
-        exclude '*-linux-arm*.jar'        
+        exclude '*-linux-arm*.jar'
         exclude '*-linux-ppc*.jar'
       }
     }
