@@ -2,6 +2,12 @@
   <gml:description>Processing chain for tracking and geo-referencing a ground target in a video stream</gml:description>
   <gml:identifier codeSpace="uid">urn:osh:process:vmti</gml:identifier>
   <gml:name>MISB UAS - Video Moving Target Geo-Referencing</gml:name>
+  <sml:validTime>
+    <gml:TimePeriod gml:id="T1">
+      <gml:beginPosition>2021-06-09T20:00:00Z</gml:beginPosition>
+      <gml:endPosition indeterminatePosition="now"/>
+    </gml:TimePeriod>
+  </sml:validTime>
   <sml:outputs>
     <sml:OutputList>
       <sml:output name="targetLocation">

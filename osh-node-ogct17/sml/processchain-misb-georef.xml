@@ -2,6 +2,12 @@
   <gml:description>Processing chain for geo-referencing the image center and corners</gml:description>
   <gml:identifier codeSpace="uid">urn:osh:process:georef</gml:identifier>
   <gml:name>MISB UAS - Image Frame Geo-Referencing</gml:name>
+  <sml:validTime>
+    <gml:TimePeriod gml:id="T1">
+      <gml:beginPosition>2021-06-09T20:00:00Z</gml:beginPosition>
+      <gml:endPosition indeterminatePosition="now"/>
+    </gml:TimePeriod>
+  </sml:validTime>
   <sml:outputs>
     <sml:OutputList>
       <sml:output name="geoRefImageFrame">
