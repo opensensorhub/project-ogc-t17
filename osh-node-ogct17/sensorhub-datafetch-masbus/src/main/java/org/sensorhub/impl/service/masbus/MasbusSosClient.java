@@ -100,7 +100,7 @@ public class MasbusSosClient extends AbstractModule<MasbusSosConfig>
     protected void doStart() throws SensorHubException
     {
      // fetch observation and publish to event bus
-        CompletableFuture.runAsync(Lambdas.wrapException(() -> {
+        CompletableFuture.runAsync(Lambdas.checked(() -> {
             for (var sysUID: config.procedures)
             {
                 getLogger().info("Fetching data for procedure {}", sysUID);
