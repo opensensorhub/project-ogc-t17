@@ -1,0 +1,195 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://bbecquet.github.io/Leaflet.RotatedMarker/leaflet.rotatedMarker.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mqtt/4.3.4/mqtt.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" type="text/css" />
+    <style>
+      td {padding: 10px; padding-right: 40px; vertical-align: top;}
+      pre {padding: 0; margin: 0}
+    </style>
+    <script type="text/javascript">
+        function init(){
+            var map = L.map("map");
+            L.tileLayer("http://{s}.tile.osm.org/{z}/{x}/{y}.png").addTo(map);
+                        
+            // center map on initial UAV location
+            map.setView([0, 0], 2);
+            var url = window.location;
+            
+            // SWE API request parts
+            var tls = url.protocol == "https:";
+            var httpUrl = url.protocol + "//" + url.host + "/sensorhub/api/";
+            var wsUrl = (tls ? "wss" : "ws") + "://" + url.host + "/sensorhub/api/";
+            var mqttUrl = (tls ? "wss" : "ws") + "://" + url.hostname + (tls ? ":8483" : ":8083") + "/mqtt";
+            
+            var systemId = "1ghd3h0dea3xy";
+            var posDsId = "1eots41v6kody";
+            var cmdStreamId = "1rl2xoslsdldj";
+            
+            
+            //////////////////////////////////////
+            // request and display UAV location //
+            //////////////////////////////////////
+            
+            var marker;
+            var polyline;
+            var uavIcon = L.icon({
+              iconUrl: 'img/uav.png',
+              iconSize: [30, 30],
+              iconAnchor: [15, 15],
+            });
+            var heading = 0;
+            var prevTime = 0;
+            
+            var reader_loc = new FileReader();
+            reader_loc.onload = function() {
+                var rec = reader_loc.result;
+                //console.log(rec);
+                var obs = JSON.parse(rec);
+                document.getElementById("text_loc").innerHTML = JSON.stringify(obs, null, 2);
+                
+                var time = Date.parse(obs.resultTime);
+                var point = [
+                  obs.result.pos.lat,
+                  obs.result.pos.lon
+                ];
+                  
+                if (marker == null) {
+                  marker = L.marker(point, {color: 'red', icon: uavIcon}).addTo(map);
+                } else {
+                  marker.setLatLng(point);
+                  //marker.setRotationAngle(heading);
+                }
+                
+                if (polyline == null || prevTime > time) {
+                  polyline = L.polyline([point], {color: 'blue', weight: 3}).addTo(map);
+                } else {
+                  polyline.addLatLng(point);
+                }
+                
+                prevTime = time;
+            }
+            
+            // stream obs from position data stream
+            var ws_loc = new WebSocket(wsUrl + "datastreams/" + posDsId + "/observations");
+            ws_loc.onmessage = function (event) {
+                reader_loc.readAsText(event.data);
+                //ws_loc.close();
+            }
+            ws_loc.onerror = function (event) {
+                ws_loc.close();
+            }
+            
+            
+            // connect to mqtt command stream
+            const cmdTopic = "/api/systems/" + systemId + "/controls/" + cmdStreamId + "/commands";
+            const statusTopic = "/api/systems/" + systemId + "/controls/" + cmdStreamId + "/status";
+            
+            const client  = mqtt.connect(mqttUrl, {
+                protocolVersion: 5,
+                username: 'demo',
+                password: 'pwd4demo'
+            });
+            
+            
+            // subscribe to command status
+            let commands = new Map();
+            client.subscribe(statusTopic, {});
+            client.on('message', function (topic, message) {
+              let status = JSON.parse(message.toString());
+              fetch(httpUrl.replace('/api/', '') + cmdTopic + "/" + status.command)
+                  .then(response => response.json())
+                  .then(cmd => {
+                     console.log(cmd);
+                     commands.set(cmd.id, cmd);
+                     
+                     // redraw
+                     document.getElementById("text_commands").innerHTML = "";
+                     commands.forEach(cmd => {
+                       document.getElementById("text_commands").innerHTML += 
+                          Object.keys(cmd.params)[0] + ': ' + cmd.status + '<br/>';
+                     });
+                  });
+              console.log(status);
+            })
+
+            
+            // send takeoff command
+            let takeOffCmd = {
+               params: {
+                  AUTO_TAKEOFF: {
+                      height: 10.0
+                  }
+               }
+            }
+            client.publish(cmdTopic, JSON.stringify(takeOffCmd));
+            
+            
+            // send waypoint command when map is clicked
+            const corrData = new DataView(new ArrayBuffer(4));
+            map.on('click', e => {
+                let goToCmd = {
+                   params: {
+                      WAYPOINT: {
+                        position: {
+                          lat: e.latlng.lat,
+                          lon: e.latlng.lng,
+                          alt: 270
+                        },
+                        velocity: 100000
+                      }
+                   }
+                }
+                
+                let corrId = Math.floor(Math.random()*1e9);
+                console.log("Correlation ID = " + corrId);
+                corrData.setInt32(0, corrId, false);
+                client.publish(cmdTopic, JSON.stringify(goToCmd), {
+                    properties: {
+                        correlationData: new Uint8Array(corrData.buffer)
+                    }
+                });
+            });
+        }
+
+    </script>
+  </head>
+  <body onload="init()" style="font-family: verdana">
+    <h1 id="title">Simulated UAV Tasking Demo</h1>
+    <table width="100%">
+      <tr>
+        <td width="75%">
+          <div id="map" style="width:100%; height:768px"></div>
+        </td>
+        <td>
+          <div style="position:relative; float:left">
+            <b><pre>UAV Location</pre></b>
+            <p></p>
+            <pre id="text_loc">Waiting for first data packet...</pre>
+            <p>&nbsp;</p>
+            <b><pre>UAV Attitude</pre></b>
+            <p></p>
+            <pre id="text_att">Waiting for first data packet...</pre>
+            <p>&nbsp;</p>
+            <b><pre>Gimbal Orientation</pre></b>
+            <p></p>
+            <pre id="text_gimbal">Waiting for first data packet...</pre>
+            <p>&nbsp;</p>
+            <b><pre>Status Info</pre></b>
+            <p></p>
+            <pre id="text_status">Waiting for first data packet...</pre>
+            <p>&nbsp;</p>
+            <b><pre>Commands ACK</pre></b>
+            <p></p>
+            <pre id="text_commands">Waiting for first command...</pre>
+          </div>
+        </td>
+      </tr>
+    </table>    
+  </body>
+</html>
+
+
+
+
