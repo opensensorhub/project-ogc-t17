@@ -3,7 +3,7 @@
     "objClass": "org.sensorhub.impl.service.HttpServerConfig",
     "httpPort": 8080,
     "httpsPort": 8443,
-    "staticDocRootUrl": "web",
+    "staticDocsRootDir": "web",
     "servletsRootUrl": "/sensorhub",
     "proxyBaseUrl": "https://ogct17.georobotix.io:8443",
     "authMethod": "BASIC",

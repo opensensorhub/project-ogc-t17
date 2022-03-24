@@ -3,7 +3,7 @@
     "objClass": "org.sensorhub.impl.service.HttpServerConfig",
     "httpPort": 8181,
     "httpsPort": 0,
-    "staticDocRootUrl": "web",
+    "staticDocsRootDir": "web",
     "servletsRootUrl": "/sensorhub",
     "proxyBaseUrl": "https://ogct17.georobotix.io:8443",
     "authMethod": "BASIC",
@@ -46,6 +46,20 @@
         "name": "Smart Sensors",
         "password": "pwd",
         "roles": ["sost"]
+      },
+      {
+        "objClass": "org.sensorhub.impl.security.BasicSecurityRealmConfig$UserConfig",
+        "id": "demo",
+        "name": "UAV Demo Client",
+        "password": "pwd4demo",
+        "roles": ["tasking"]
+      },
+      {
+        "objClass": "org.sensorhub.impl.security.BasicSecurityRealmConfig$UserConfig",
+        "id": "teodor",
+        "name": "Teodor (Kongsberg)",
+        "password": "pwd4teodor",
+        "roles": ["tasking"]
       }
     ],
     "roles": [
@@ -73,6 +87,16 @@
           "sos[*]/get/*",
           "sos[*]/insert/*",
           "sos[*]/update/*"
+        ],
+        "deny": []
+      },
+      {
+        "objClass": "org.sensorhub.impl.security.BasicSecurityRealmConfig$RoleConfig",
+        "id": "tasking",
+        "allow": [
+          "swapi[*]/get/*",
+          "swapi[*]/stream/*",
+          "swapi[*]/create/commands"
         ],
         "deny": []
       }
