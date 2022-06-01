@@ -22,14 +22,12 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import org.sensorhub.api.common.SensorHubException;
 import org.sensorhub.api.database.IObsSystemDatabase;
-import org.sensorhub.api.datastore.DataStoreException;
 import org.sensorhub.impl.client.sos.SOSClient;
 import org.sensorhub.impl.module.AbstractModule;
 import org.sensorhub.impl.system.DataStreamTransactionHandler;
 import org.sensorhub.impl.system.SystemDatabaseTransactionHandler;
 import org.sensorhub.impl.system.SystemTransactionHandler;
-import org.sensorhub.impl.system.wrapper.SystemWrapper;
-import org.sensorhub.utils.CallbackException;
+import org.sensorhub.impl.system.wrapper.SmlFeatureWrapper;
 import org.sensorhub.utils.DataComponentChecks;
 import org.sensorhub.utils.Lambdas;
 import org.vast.data.DataRecordImpl;
@@ -84,7 +82,9 @@ public class MasbusSosClient extends AbstractModule<MasbusSosConfig>
         }
         
         // prepare transaction handler
-        this.txnHandler = new SystemDatabaseTransactionHandler(getParentHub().getEventBus(), writeDatabase);
+        this.txnHandler = new SystemDatabaseTransactionHandler(
+            getParentHub().getEventBus(),
+            writeDatabase);
         
         // prepare SOS client
         var grRequest = new GetResultRequest();
@@ -122,7 +122,7 @@ public class MasbusSosClient extends AbstractModule<MasbusSosConfig>
         
         // patch UID and hide I/O signals
         smlProc.setUniqueIdentifier(sysUID);
-        var procWrapper = new SystemWrapper(smlProc)
+        var procWrapper = new SmlFeatureWrapper(smlProc)
             .hideOutputs()
             .hideTaskableParams()
             .defaultToValidTime(TimeExtent.endNow(Instant.parse("2019-03-01T00:00:00Z")));
@@ -198,28 +198,21 @@ public class MasbusSosClient extends AbstractModule<MasbusSosConfig>
             }
             
             var structHC = DataComponentChecks.getStructCompatibilityHashCode(result);
-            var dsHandler = dsHandlers.computeIfAbsent(structHC, k -> {
-                try
-                {
-                    // find a good output name
-                    int lastSepIdx = obsProp.lastIndexOf(':');
-                    if (lastSepIdx < 0)
-                        lastSepIdx = obsProp.lastIndexOf('/');
-                    String obsPropName = lastSepIdx > 0 ? obsProp.substring(lastSepIdx+1) : "output";
-                    int outputIdx = 1;
-                    String outputName = obsPropName;
-                    while (outputNames.contains(outputName))
-                        outputName = obsPropName + (outputIdx++);
-                    
-                    // get or create datastream handler
-                    var dataStruct = newResult.copy();
-                    return procHandler.addOrUpdateDataStream(outputName, dataStruct, new TextEncodingImpl());
-                }
-                catch (DataStoreException e)
-                {
-                    throw new CallbackException(e);
-                }
-            });
+            var dsHandler = dsHandlers.computeIfAbsent(structHC, Lambdas.checked(k -> {
+                // find a good output name
+                int lastSepIdx = obsProp.lastIndexOf(':');
+                if (lastSepIdx < 0)
+                    lastSepIdx = obsProp.lastIndexOf('/');
+                String obsPropName = lastSepIdx > 0 ? obsProp.substring(lastSepIdx+1) : "output";
+                int outputIdx = 1;
+                String outputName = obsPropName;
+                while (outputNames.contains(outputName))
+                    outputName = obsPropName + (outputIdx++);
+                
+                // get or create datastream handler
+                var dataStruct = newResult.copy();
+                return procHandler.addOrUpdateDataStream(outputName, dataStruct, new TextEncodingImpl());
+            }));
             
             if (result instanceof DataRecordImpl)
                 ((DataRecordImpl) result).combineDataBlocks();

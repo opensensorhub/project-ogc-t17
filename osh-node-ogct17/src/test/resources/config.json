@@ -5,7 +5,6 @@
     "httpsPort": 0,
     "staticDocsRootDir": "web",
     "servletsRootUrl": "/sensorhub",
-    "proxyBaseUrl": "https://ogct17.georobotix.io:8443",
     "authMethod": "BASIC",
     "enableCORS": true,
     "id": "5cb05c9c-9e08-4fa1-8731-ffaa5846bdc1",
@@ -329,7 +328,7 @@
     "id": "475c1560-aee7-48e2-a5ba-11205932b8ee",
     "moduleClass": "org.sensorhub.impl.service.masbus.MasbusSosClient",
     "name": "MASBUS SOS Client",
-    "autoStart": true
+    "autoStart": false
   },
   {
     "objClass": "org.sensorhub.impl.service.sos.SOSServiceConfig",
@@ -368,35 +367,25 @@
     "enableTransactional": true,
     "ogcCapabilitiesInfo": {
       "objClass": "org.sensorhub.impl.service.ogc.OGCServiceConfig$CapabilitiesInfo",
-      "title": "Test SOS Service",
-      "description": "An SOS service automatically deployed by SensorHub",
+      "title": "OGC T17 SOS Endpoint",
+      "description": "SOS demo server setup for OGC Testbed-17",
       "keywords": [
         "SensorHub",
-        "Video"
+        "SWE",
+        "MISB",
+        "MASBUS",
+        "SIF"
       ],
       "fees": "NONE",
       "accessConstraints": "NONE",
       "serviceProvider": {
         "objClass": "org.vast.util.ResponsibleParty",
         "individualName": "Alex Robin",
-        "organizationName": "Sensia Software LLC",
-        "positionName": "Engineer",
-        "voiceNumbers": [
-          "+33 5 23 56 89 78"
-        ],
-        "faxNumbers": [
-          "+33 5 23 56 89 77"
-        ],
-        "deliveryPoints": [
-          "12 rue Voltaire"
-        ],
-        "city": "Toulouse",
-        "postalCode": "30000",
-        "country": "France",
-        "emails": [
-          "admin@sensiasoft.com"
-        ],
-        "hrefPresent": false
+        "organizationName": "GeoRobotix, Inc.",
+        "positionName": "Software Architect",
+        "city": "Huntsville",
+        "administrativeArea": "AL",
+        "country": "USA"
       }
     },
     "enableHttpGET": true,
@@ -414,12 +403,6 @@
       "objClass": "org.sensorhub.impl.service.sta.STAServiceConfig$HubThingInfo",
       "name": "SensorHub Node",
       "description": "The local sensor hub and its sensors"
-    },
-    "virtualSensorGroup": {
-      "objClass": "org.sensorhub.impl.system.VirtualSystemGroupConfig",
-      "uid": "urn:osh:sta:group",
-      "name": "SensorThings Sensor Group",
-      "description": "Sensors registered via SensorThings API"
     },
     "dbConfig": {
       "objClass": "org.sensorhub.impl.service.sta.STADatabaseConfig",
@@ -480,13 +463,26 @@
     "defaultLiveTimeout": 600.0,
     "ogcCapabilitiesInfo": {
       "objClass": "org.sensorhub.impl.service.ogc.OGCServiceConfig$CapabilitiesInfo",
+      "title": "OGC T17 SWE API Endpoint",
+      "description": "SensorWeb API demo server setup for OGC Testbed-17",
+      "keywords": [
+        "SensorHub",
+        "SensorWeb API",
+        "SWE",
+        "MISB",
+        "MASBUS",
+        "SIF"
+      ],
+      "fees": "NONE",
+      "accessConstraints": "NONE",
       "serviceProvider": {
         "objClass": "org.vast.util.ResponsibleParty",
-        "voiceNumbers": [],
-        "faxNumbers": [],
-        "deliveryPoints": [],
-        "emails": [],
-        "hrefPresent": false
+        "individualName": "Alex Robin",
+        "organizationName": "GeoRobotix, Inc.",
+        "positionName": "Software Architect",
+        "city": "Huntsville",
+        "administrativeArea": "AL",
+        "country": "USA"
       }
     },
     "enableHttpGET": true,

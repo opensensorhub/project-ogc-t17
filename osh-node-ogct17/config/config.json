@@ -308,7 +308,7 @@
     "id": "475c1560-aee7-48e2-a5ba-11205932b8ee",
     "moduleClass": "org.sensorhub.impl.service.masbus.MasbusSosClient",
     "name": "MASBUS SOS Client",
-    "autoStart": true
+    "autoStart": false
   },
   {
     "objClass": "org.sensorhub.impl.service.sos.SOSServiceConfig",
@@ -393,12 +393,6 @@
       "objClass": "org.sensorhub.impl.service.sta.STAServiceConfig$HubThingInfo",
       "name": "SensorHub Node",
       "description": "The local sensor hub and its sensors"
-    },
-    "virtualSensorGroup": {
-      "objClass": "org.sensorhub.impl.system.VirtualSystemGroupConfig",
-      "uid": "urn:osh:sta:group",
-      "name": "SensorThings Sensor Group",
-      "description": "Sensors registered via SensorThings API"
     },
     "dbConfig": {
       "objClass": "org.sensorhub.impl.service.sta.STADatabaseConfig",
